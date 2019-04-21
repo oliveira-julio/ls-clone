@@ -1,6 +1,7 @@
 from click import command
 from click import echo
 from click import argument
+from click import option
 from pathlib import Path
 
 
@@ -13,8 +14,16 @@ def isnothidden(archive):
 
 
 @command()
+@option(
+    "-a",
+    "--all",
+    "hidden",
+    help="not ignore archives which start with .",
+    is_flag=True,
+    default=False,
+)
 @argument("path", default=".")
-def ls(path):
+def ls(path, hidden):
     """Clone of ls command, write in Python3"""
     my_path = Path(path)
 
@@ -27,7 +36,9 @@ def ls(path):
         return
 
     if my_path.is_dir():
-        archives = filter(isnothidden, my_path.iterdir())
+        archives = my_path.iterdir()
+        if not hidden:
+            archives = filter(isnothidden, archives)
 
         for archive in archives:
             echo(archive.stem)
